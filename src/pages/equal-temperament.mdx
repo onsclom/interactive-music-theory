@@ -2,15 +2,16 @@
 layout: "../layout.astro"
 ---
 
-import Piano from "../piano.svelte"
+import Piano from "../Piano.astro"
+import SveltePiano from "../piano.svelte"
 
 # Equal Temperament
+
+<Piano octaveWidth={1000}/>
 
 _An introduction to music theory for beginners with little to no music experience_
 
 Pianos are a nice way to visualize music theory, so we will use them a lot. Checkout this one!
-
-<Piano client:load />
 
 Notice how pianos have a repeating pattern of 7 white keys and 5 black keys.
 

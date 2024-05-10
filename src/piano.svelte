@@ -1,7 +1,7 @@
 <script lang="ts">
   const noteSize = 40;
   const blackNoteSize = 23;
-  const octaves = 2;
+  const octaves = 4;
 </script>
 
 <div class="h-28 relative overflow-x-scroll flex">
@@ -41,7 +41,6 @@
       style:left={`${noteSize * 6 + i * noteSize * 7}px`}
       style:width={`${noteSize}px`}
     ></div>
-    <div />
 
     <!-- black keys -->
     <div

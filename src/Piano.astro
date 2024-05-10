@@ -1,0 +1,131 @@
+<div class="overflow-x-auto test">
+  <canvas class="m-auto cursor-pointer"></canvas>
+</div>
+
+<style>
+  .test {
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+  }
+</style>
+
+<script>
+  const octaveWidth = 350;
+  const pianoHeight = 200;
+  const octaveAmount = 2;
+
+  const [whiteKeys, blackKeys] = (() => {
+    const whiteKeyWidth = octaveWidth / 7;
+    const blackKeyWidth = whiteKeyWidth * 0.6;
+    const blackKeyHeight = pianoHeight * 0.6;
+
+    const whiteKeyNames = "cdefgab";
+    const whiteKeys = Array.from({ length: octaveAmount }, (_, i) => {
+      return Array.from({ length: 7 }, (_, j) => {
+        return {
+          note: whiteKeyNames[j]!,
+          top: 0,
+          left: i * octaveWidth + j * whiteKeyWidth,
+          width: whiteKeyWidth,
+          height: pianoHeight,
+        };
+      });
+    }).flat();
+    const blackKeys = Array.from({ length: octaveAmount }, (_, i) => {
+      return Array.from({ length: 5 }, (_, j) => {
+        return {
+          top: 0,
+          left:
+            i * octaveWidth +
+            j * whiteKeyWidth +
+            whiteKeyWidth -
+            blackKeyWidth / 2 +
+            (j >= 2 ? whiteKeyWidth : 0),
+          width: blackKeyWidth,
+          height: blackKeyHeight,
+        };
+      });
+    }).flat();
+    return [whiteKeys, blackKeys];
+  })();
+
+  const [intuitiveWhiteKeys, intuitiveBlackKeys] = (() => {
+    const blackKeys = [1, 3, 6, 8, 10];
+    const allKeys = Array.from({ length: octaveAmount }, (_, i) => {
+      return Array.from({ length: 12 }, (_, j) => {
+        return {
+          top: 0,
+          left: i * octaveWidth + j * (octaveWidth / 12),
+          width: octaveWidth / 12,
+          height: pianoHeight,
+          color: blackKeys.includes(j) ? "black" : "white",
+        };
+      });
+    }).flat();
+    return [
+      allKeys.filter((key) => key.color === "white"),
+      allKeys.filter((key) => key.color === "black"),
+    ];
+  })();
+
+  const curWhiteKeys = structuredClone(whiteKeys);
+  const curBlackKeys = structuredClone(blackKeys);
+  let isIntuitiveMode = false;
+
+  const canvas = document.querySelector("canvas")!;
+  const ctx = canvas.getContext("2d")!;
+
+  canvas.onclick = () => {
+    isIntuitiveMode = !isIntuitiveMode;
+  };
+
+  const raf = () => {
+    // interp
+    const targetWhiteKeys = isIntuitiveMode ? intuitiveWhiteKeys : whiteKeys;
+    const targetBlackKeys = isIntuitiveMode ? intuitiveBlackKeys : blackKeys;
+    const targetKeys = [...targetWhiteKeys, ...targetBlackKeys];
+
+    [...curWhiteKeys, ...curBlackKeys].forEach((key, i) => {
+      const targetKey = targetKeys[i]!;
+      key.left = targetKey.left * 0.1 + key.left * 0.9;
+      key.top = targetKey.top * 0.1 + key.top * 0.9;
+      key.width = targetKey.width * 0.1 + key.width * 0.9;
+      key.height = targetKey.height * 0.1 + key.height * 0.9;
+    });
+
+    canvas.style.width = `${octaveWidth * octaveAmount}px`;
+    canvas.style.height = `${pianoHeight}px`;
+    canvas.width = octaveWidth * octaveAmount * devicePixelRatio;
+    canvas.height = pianoHeight * devicePixelRatio;
+    ctx.resetTransform();
+    ctx.scale(devicePixelRatio, devicePixelRatio);
+
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    curWhiteKeys.forEach((key) => {
+      ctx.fillStyle = "white";
+      ctx.fillRect(key.left, key.top, key.width, key.height);
+      ctx.strokeStyle = "black";
+      ctx.strokeRect(key.left, key.top, key.width, key.height);
+      ctx.fillStyle = "black";
+      // ctx.fillText(key.note ?? "!", key.left + key.width / 2, key.top + 190);
+    });
+
+    curBlackKeys.forEach((key) => {
+      ctx.fillStyle = "black";
+      ctx.fillRect(key.left, key.top, key.width, key.height);
+      ctx.strokeStyle = "black";
+      ctx.strokeRect(key.left, key.top, key.width, key.height);
+    });
+    requestAnimationFrame(raf);
+  };
+  requestAnimationFrame(raf);
+
+  // const boundingRect = canvas.getBoundingClientRect();
+  // console.log("definevars", octaveAmount);
+</script>
